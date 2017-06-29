@@ -884,11 +884,11 @@ trait WebDav {
 	 * @return int
 	 */
 	private function getFileIdForPath($user, $path) {
-		$propertiesTable = new \Behat\Gherkin\Node\TableNode([["{http://owncloud.org/ns}fileid"]]);
-		$this->asGetsPropertiesOfFolderWith($user, 'file', $path, $propertiesTable);
-		if (is_array($this->response)) {
-			return (int) $this->response['{http://owncloud.org/ns}fileid'];
-		} else {
+		try {
+			return WebDavHelper::getFileIdForPath(
+				$this->baseUrlWithoutOCSAppendix, $user,
+				$this->getPasswordForUser($user), $path);
+		} catch ( Exception $e ) {
 			return null;
 		}
 	}
