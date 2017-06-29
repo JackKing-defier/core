@@ -43,7 +43,8 @@ trait Tags {
 				$this->baseUrlWithoutOCSAppendix,
 				$user,
 				$this->getPasswordForUser($user),
-				$name, $userVisible, $userAssignable, $groups
+				$name, $userVisible, $userAssignable, $groups,
+				$this->getDavPathVersion()
 			);
 			$lastTagId = $createdTag['lastTagId'];
 			$this->response = $createdTag['HTTPResponse'];
@@ -245,7 +246,8 @@ trait Tags {
 			$this->response = TagsHelper::deleteTag(
 				$this->baseUrlWithoutOCSAppendix,
 				$user,
-				$this->getPasswordForUser($user), $tagID
+				$this->getPasswordForUser($user), $tagID,
+				$this->getDavPathVersion()
 			);
 		} catch (ClientException $e) {
 			$this->response = $e->getResponse();
@@ -260,7 +262,7 @@ trait Tags {
 				$this->baseUrlWithoutOCSAppendix,
 				$taggingUser, 
 				$this->getPasswordForUser($taggingUser),
-				$tagName, $fileName, $fileOwner
+				$tagName, $fileName, $fileOwner, $this->getDavPathVersion()
 				);
 		} catch ( ClientException $e ) {
 			$this->response = $e->getResponse();
@@ -376,7 +378,7 @@ trait Tags {
 			try {
 				$this->response = TagsHelper::deleteTag(
 					$this->baseUrlWithoutOCSAppendix,
-					"admin", $this->getPasswordForUser("admin"), $tagID);
+					"admin", $this->getPasswordForUser("admin"), $tagID, 2);
 			} catch (ClientException  $e) {
 				$this->response = $e->getResponse();
 			}

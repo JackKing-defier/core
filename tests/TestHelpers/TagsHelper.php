@@ -30,11 +30,12 @@ class TagsHelper {
 	 * @param string $tagName
 	 * @param string $fileName
 	 * @param string $fileOwner
+	 * @param int $davPathVersionToUse (1|2)
 	 * @return \GuzzleHttp\Message\FutureResponse|\GuzzleHttp\Message\ResponseInterface|NULL
 	 */
 	public static function tag(
 		$baseUrl, $taggingUser, $password,
-		$tagName, $fileName, $fileOwner)
+		$tagName, $fileName, $fileOwner, $davPathVersionToUse = 1)
 	{
 		$fileID = WebDavHelper::getFileIdForPath(
 			$baseUrl, $fileOwner, $password, $fileName
@@ -47,7 +48,7 @@ class TagsHelper {
 		$path = '/systemtags-relations/files/' . $fileID . '/' . $tagID;
 		$response = WebDavHelper::makeDavRequest(
 			$baseUrl, $taggingUser, $password, "PUT",
-			$path, null, null, "systemtags"
+			$path, null, null, null, $davPathVersionToUse, "systemtags"
 		);
 		return $response;
 	}
@@ -76,7 +77,7 @@ class TagsHelper {
 			array_push($properties, '{http://owncloud.org/ns}groups');
 		}
 		$appPath = '/systemtags/';
-		$fullUrl = $baseUrl . WebDavHelper::getDavPath($user, 1, "systemtags") . $appPath;
+		$fullUrl = $baseUrl . WebDavHelper::getDavPath($user, 2, "systemtags") . $appPath;
 		$response = $client->propfind($fullUrl, $properties, 1);
 		return $response;
 	}
@@ -114,6 +115,7 @@ class TagsHelper {
 	 * @param bool $userVisible
 	 * @param bool $userAssignable
 	 * @param string $groups separated by "|"
+	 * @param int $davPathVersionToUse (1|2)
 	 * @return array ['lastTagId', 'HTTPResponse']
 	 * @throws \GuzzleHttp\Exception\ClientException
 	 * @link self::makeDavRequest()
@@ -125,7 +127,8 @@ class TagsHelper {
 		$name,
 		$userVisible = true,
 		$userAssignable = true,
-		$groups = null)
+		$groups = null,
+		$davPathVersionToUse = 1)
 	{
 		$tagsPath = '/systemtags/';
 		$body = [
@@ -145,7 +148,9 @@ class TagsHelper {
 			$tagsPath,
 			['Content-Type' => 'application/json',],
 			null,
-			json_encode($body));
+			json_encode($body),
+			$davPathVersionToUse,
+			"systemtags");
 
 		$responseHeaders =  $response->getHeaders();
 		$tagUrl = $responseHeaders['Content-Location'][0];
@@ -159,6 +164,7 @@ class TagsHelper {
 	 * @param string $user
 	 * @param string $password
 	 * @param int $tagID
+	 * @param int $davPathVersionToUse (1|2)
 	 * @return \GuzzleHttp\Message\FutureResponse|\GuzzleHttp\Message\ResponseInterface|NULL
 	 * @throws \GuzzleHttp\Exception\ClientException
 	 */
@@ -166,12 +172,13 @@ class TagsHelper {
 		$baseUrl,
 		$user,
 		$password,
-		$tagID)
+		$tagID,
+		$davPathVersionToUse = 1)
 	{
 		$tagsPath = '/systemtags/' . $tagID;
 		$response = WebDavHelper::makeDavRequest(
 			$baseUrl, $user, $password,
-			"DELETE", $tagsPath, [ ], null, "uploads", null
+			"DELETE", $tagsPath, [ ], null, null, $davPathVersionToUse, "systemtags"
 		);
 		return $response;
 	}

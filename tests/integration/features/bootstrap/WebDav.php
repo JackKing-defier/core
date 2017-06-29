@@ -53,6 +53,14 @@ trait WebDav {
 		}
 	}
 
+	private function getDavPathVersion ()
+	{
+		if ($this->usingOldDavPath === true) {
+			return 1;
+		} else {
+			return 2;
+		}
+	}
 	public function makeDavRequest($user,
 								   $method,
 								   $path,
@@ -60,15 +68,12 @@ trait WebDav {
 								   $body = null,
 								   $type = "files",
 								   $requestBody = null){
-		if ($this->usingOldDavPath === true) {
-			$davPathVersion = 1;
-		} else {
-			$davPathVersion = 2;
-		}
+
 		return WebDavHelper::makeDavRequest(
 			$this->baseUrlWithoutOCSAppendix,
 			$user, $this->getPasswordForUser($user), $method,
-			$path, $headers, $body, $requestBody, $davPathVersion
+			$path, $headers, $body, $requestBody, $this->getDavPathVersion(),
+			$type
 		);
 	}
 

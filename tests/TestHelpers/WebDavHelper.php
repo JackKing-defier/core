@@ -71,6 +71,7 @@ class WebDavHelper
 	 * @param StreamInterface $body
 	 * @param string $requestBody
 	 * @param int $davPathVersionToUse (1|2)
+	 * @param string $type of request
 	 * @return \GuzzleHttp\Message\FutureResponse|\GuzzleHttp\Message\ResponseInterface|NULL
 	 * @throws \GuzzleHttp\Exception\BadResponseException
 	 */
@@ -83,14 +84,11 @@ class WebDavHelper
 		$headers,
 		$body = null,
 		$requestBody = null,
-		$davPathVersionToUse = 1)
+		$davPathVersionToUse = 1,
+		$type = "files")
 	{
 			$baseUrl = self::sanitizeUrl($baseUrl, true);
-			if (strstr($path, "systemtags") !== false) {
-				$davPath = self::getDavPath("", $davPathVersionToUse, "systemtags");
-			} else {
-				$davPath = self::getDavPath($user, $davPathVersionToUse);
-			}
+			$davPath = self::getDavPath($user, $davPathVersionToUse, $type);
 			$fullUrl = self::sanitizeUrl($baseUrl . $davPath . $path);
 			$client = new GClient();
 			
@@ -127,22 +125,17 @@ class WebDavHelper
 	 */
 	public static function getDavPath($user, $davPathVersionToUse = 1, $type = "files") 
 	{
-		switch ($type) {
-			case "files":
-				if ($davPathVersionToUse === 1){
-					return "remote.php/webdav/";
-				} elseif ($davPathVersionToUse === 2) {
-					return "remote.php/dav" . '/files/' . $user . "/";
-				} else {
-					throw new InvalidArgumentException("DAV path version $davPathVersionToUse is unknown");
-				}
-				break;
-			case "systemtags":
+		if ($davPathVersionToUse === 1) {
+			return "remote.php/webdav/";
+		} elseif ($davPathVersionToUse === 2) {
+			if ($type === "files") {
+				return "remote.php/dav" . '/files/' . $user . "/";
+			} else {
 				return "remote.php/dav";
-				break;
-			default:
-				throw new InvalidArgumentException("invalid type");
-				break;
+			}
+		} else {
+			throw new InvalidArgumentException(
+				"DAV path version $davPathVersionToUse is unknown");
 		}
 	}
 
