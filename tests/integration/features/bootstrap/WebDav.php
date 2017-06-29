@@ -21,12 +21,20 @@ trait WebDav {
 	private $storedETAG = NULL;
 	/** @var integer */
 	private $storedFileID = NULL;
+	
+	/**
+	 * a variable that contains the dav path without "remote.php/(web)dav"
+	 * when setting $this->davPath directly by usingDavPath()
+	 * @var string
+	 */
+	private $customDavPath = null;
 
 	/**
 	 * @Given /^using dav path "([^"]*)"$/
 	 */
 	public function usingDavPath($davPath) {
 		$this->davPath = $davPath;
+		$this->customDavPath = preg_replace("/remote\.php\/(web)?dav\//", "", $davPath);
 	}
 
 	/**
@@ -35,6 +43,7 @@ trait WebDav {
 	public function usingOldDavPath() {
 		$this->davPath = "remote.php/webdav";
 		$this->usingOldDavPath = true;
+		$this->customDavPath = null;
 	}
 
 	/**
@@ -43,6 +52,7 @@ trait WebDav {
 	public function usingNewDavPath() {
 		$this->davPath = "remote.php/dav";
 		$this->usingOldDavPath = false;
+		$this->customDavPath = null;
 	}
 
 	public function getDavFilesPath($user){
@@ -67,7 +77,12 @@ trait WebDav {
 								   $headers,
 								   $body = null,
 								   $type = "files",
-								   $requestBody = null){
+								   $requestBody = null)
+	{
+
+		if ($this->customDavPath !== null) {
+			$path = $this->customDavPath . $path;
+		}
 
 		return WebDavHelper::makeDavRequest(
 			$this->baseUrlWithoutOCSAppendix,
