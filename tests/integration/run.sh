@@ -113,7 +113,7 @@ if test "$BEHAT_FILTER_TAGS"; then
 	}'
 fi
 
-BEHAT_PARAMS="$BEHAT_PARAMS" $BEHAT --strict -f junit -f pretty $SCENARIO_TO_RUN
+BEHAT_PARAMS="$BEHAT_PARAMS" $BEHAT --strict -f junit -f pretty $SCENARIO_TO_RUN -v
 RESULT=$?
 
 kill $PHPPID
