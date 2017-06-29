@@ -111,8 +111,15 @@ class WebDavHelper
 			if (!is_null($body)) {
 				$request->setBody($body);
 			}
-			
-			return $client->send($request);
+			try {
+				$result = $client->send($request);
+			} catch (\GuzzleHttp\Exception\ServerException $e) {
+				var_dump($request);
+				echo $e->getMessage() . "\n";
+				echo $e->getResponse()->getBody()->getContents() . "\n";
+				throw $e;
+			}
+			return $result;
 	}
 
 	/**
